@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "398835549126",
+    "project_id": "mugen-eiyaku",
+    "storage_bucket": "mugen-eiyaku.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398835549126:android:1dac11ad480b9a38f068c7",
+        "android_client_info": {
+          "package_name": "com.example.english_learning_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "398835549126-fqien8td8rpfpv5qub69t8h50mh8c3fk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz1kV-Z-1UftZn2jNIQTdU8fFctKCJ9AA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "398835549126-fqien8td8rpfpv5qub69t8h50mh8c3fk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "398835549126-n93t9i809o9lah70p997lp4th51gdl6q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.englishLearningApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
