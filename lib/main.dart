@@ -386,7 +386,7 @@ Widget build(BuildContext context) {
      // 1. モデルの初期化
      final model = GenerativeModel(
        model: 'gemini-2.5-flash',
-       apiKey: 'AQ.Ab8RN6KnWKgKh65j5m9CCJmOgzS1VeeroepjffwE-DWgCzqKrg', // ← ご自身のキーに書き換えてください
+       apiKey: const String.fromEnvironment('GEMINI_API_KEY', defaultValue: 'YOUR_API_KEY'),
      );
 
      // 2. プロンプト（AIへの指示）の作成
