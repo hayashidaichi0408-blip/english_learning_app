@@ -87,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('無限英訳サバイバル'),
+        title: const Text('無限英訳サバイバル', style: TextStyle(color: Colors.black)),
         // ⭕ AppBarの色を明るいオレンジに
         backgroundColor: Colors.orange.shade200,
         actions: [
@@ -103,8 +103,8 @@ class _MainScreenState extends State<MainScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: TextButton.icon(
-                      icon: const Icon(Icons.login, color: Colors.black87),
-                      label: const Text('ログインする', style: TextStyle(color: Colors.black87)),
+                      icon: const Icon(Icons.login, color: Colors.black),
+                      label: const Text('ログインする', style: TextStyle(color: Colors.black)),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -137,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.home),
+            icon: const Icon(Icons.home, color: Colors.black),
             onPressed: _resetAll,
             tooltip: '最初に戻る',
           )
@@ -154,9 +154,11 @@ class _MainScreenState extends State<MainScreen> {
               });
             },
             labelType: NavigationRailLabelType.all,
+            unselectedLabelTextStyle: const TextStyle(color: Colors.black),
+            selectedLabelTextStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             destinations: const [
-              NavigationRailDestination(icon: Icon(Icons.edit), label: Text('演習')),
-              NavigationRailDestination(icon: Icon(Icons.book), label: Text('復習ノート')),
+              NavigationRailDestination(icon: Icon(Icons.edit, color: Colors.black), label: Text('演習')),
+              NavigationRailDestination(icon: Icon(Icons.book, color: Colors.black), label: Text('復習ノート')),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
@@ -189,7 +191,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildGradeSelection() {
     return ListView(
       children: [
-        const Text('学年選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const Text('学年選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
         const SizedBox(height: 16),
         ...DATA.keys.map((g) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
@@ -197,16 +199,16 @@ class _MainScreenState extends State<MainScreen> {
                 // ⭕ ボタンの見た目をポップに変更
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange.shade50,
-                  foregroundColor: Colors.orange.shade900,
+                  foregroundColor: Colors.black, // 文字色は黒に固定
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () => setState(() => grade = g),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.school_outlined), // 🏫 アイコン追加
+                    const Icon(Icons.school_outlined, color: Colors.black), // アイコン
                     const SizedBox(width: 8),
-                    Text(g),
+                    Text(g, style: const TextStyle(color: Colors.black)),
                   ],
                 ),
               ),
@@ -220,11 +222,11 @@ class _MainScreenState extends State<MainScreen> {
     final gradeData = DATA[grade] as Map<String, dynamic>;
     return ListView(
       children: [
-        const Text('難易度選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const Text('難易度選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
         const SizedBox(height: 16),
         ElevatedButton.icon(
-          icon: const Icon(Icons.arrow_back),
-          label: const Text('学年選択に戻る'),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          label: const Text('学年選択に戻る', style: TextStyle(color: Colors.black)),
           onPressed: () => setState(() => grade = null),
         ),
         const SizedBox(height: 16),
@@ -235,16 +237,16 @@ class _MainScreenState extends State<MainScreen> {
               // ⭕ ボタンの見た目をポップに変更
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade50,
-                foregroundColor: Colors.green.shade900,
+                foregroundColor: Colors.black, // 文字色は黒に固定
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () => setState(() => level = lv),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.star_border_purple500), // ⭐ アイコン追加
+                  const Icon(Icons.star_border_purple500, color: Colors.black), // アイコン
                   const SizedBox(width: 8),
-                  Text(lv),
+                  Text(lv, style: const TextStyle(color: Colors.black)),
                 ],
               ),
             ),
@@ -259,11 +261,11 @@ class _MainScreenState extends State<MainScreen> {
     final levelData = DATA[grade]![level] as Map<String, dynamic>;
     return ListView(
       children: [
-        const Text('章選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const Text('章選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
         const SizedBox(height: 16),
         ElevatedButton.icon(
-          icon: const Icon(Icons.arrow_back),
-          label: const Text('難易度選択に戻る'),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          label: const Text('難易度選択に戻る', style: TextStyle(color: Colors.black)),
           onPressed: () => setState(() => level = null),
         ),
         const SizedBox(height: 16),
@@ -274,16 +276,16 @@ class _MainScreenState extends State<MainScreen> {
               // ⭕ ボタンの見た目をポップに変更
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue.shade50,
-                foregroundColor: Colors.blue.shade900,
+                foregroundColor: Colors.black, // 文字色は黒に固定
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () => setState(() => chapter = ch),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.auto_stories_outlined), // 📖 本のアイコン追加
+                  const Icon(Icons.auto_stories_outlined, color: Colors.black), // アイコン
                   const SizedBox(width: 8),
-                  Text(ch),
+                  Text(ch, style: const TextStyle(color: Colors.black)),
                 ],
               ),
             ),
@@ -298,11 +300,11 @@ class _MainScreenState extends State<MainScreen> {
     final sectionData = DATA[grade]![level]![chapter] as Map<String, dynamic>;
     return ListView(
       children: [
-        const Text('節選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const Text('節選択', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
         const SizedBox(height: 16),
         ElevatedButton.icon(
-          icon: const Icon(Icons.arrow_back),
-          label: const Text('章選択に戻る'),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          label: const Text('章選択に戻る', style: TextStyle(color: Colors.black)),
           onPressed: () => setState(() => chapter = null),
         ),
         const SizedBox(height: 16),
@@ -313,7 +315,7 @@ class _MainScreenState extends State<MainScreen> {
               // ⭕ ボタンの見た目をポップに変更
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple.shade50,
-                foregroundColor: Colors.purple.shade900,
+                foregroundColor: Colors.black, // 文字色は黒に固定
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
@@ -328,9 +330,9 @@ class _MainScreenState extends State<MainScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.flag_outlined), // 🚩 アイコン追加
+                  const Icon(Icons.flag_outlined, color: Colors.black), // アイコン
                   const SizedBox(width: 8),
-                  Text(sec),
+                  Text(sec, style: const TextStyle(color: Colors.black)),
                 ],
               ),
             ),
@@ -354,8 +356,8 @@ class _MainScreenState extends State<MainScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               TextButton.icon(
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('節選択へ'),
+                icon: const Icon(Icons.arrow_back, color: Colors.black),
+                label: const Text('節選択へ', style: TextStyle(color: Colors.black)),
                 onPressed: () {
                   setState(() {
                     section = null;
@@ -365,8 +367,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
               if (qIdx > 0)
                 TextButton.icon(
-                  icon: const Icon(Icons.arrow_left),
-                  label: const Text('前の問題'),
+                  icon: const Icon(Icons.arrow_left, color: Colors.black),
+                  label: const Text('前の問題', style: TextStyle(color: Colors.black)),
                   onPressed: () {
                     setState(() {
                       qIdx--;
@@ -377,8 +379,8 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               if (qIdx < maxQIdx && qIdx + 1 < questions.length)
                 TextButton.icon(
-                  icon: const Icon(Icons.arrow_right),
-                  label: const Text('次の問題'),
+                  icon: const Icon(Icons.arrow_right, color: Colors.black),
+                  label: const Text('次の問題', style: TextStyle(color: Colors.black)),
                   onPressed: () {
                     setState(() {
                       qIdx++;
@@ -392,7 +394,7 @@ class _MainScreenState extends State<MainScreen> {
           const SizedBox(height: 16),
           Text(
             '$section (Q ${qIdx + 1}/${questions.length})',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           LinearProgressIndicator(value: (qIdx + 1) / questions.length),
           const SizedBox(height: 24),
@@ -407,9 +409,9 @@ class _MainScreenState extends State<MainScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('和訳対象:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const Text('和訳対象:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                 const SizedBox(height: 8),
-                Text(currentQ, style: const TextStyle(fontSize: 18)),
+                Text(currentQ, style: const TextStyle(fontSize: 18, color: Colors.black)),
               ],
             ),
           ),
@@ -418,8 +420,10 @@ class _MainScreenState extends State<MainScreen> {
           // 入力フォーム
           TextField(
             controller: _answerController,
+            style: const TextStyle(color: Colors.black),
             decoration: const InputDecoration(
               labelText: '英文を入力してください',
+              labelStyle: TextStyle(color: Colors.black),
               border: OutlineInputBorder(),
             ),
             maxLines: 2,
@@ -436,7 +440,7 @@ class _MainScreenState extends State<MainScreen> {
             },
             child: _isLoading
                 ? const CircularProgressIndicator()
-                : const Text('採点・解説', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                : const Text('採点・解説', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
           ),
           const SizedBox(height: 24),
 
@@ -470,7 +474,7 @@ class _MainScreenState extends State<MainScreen> {
       );
 
       // 2. プロンプト（AIへの指示）の作成
-      // ⚠️ あなたの元の日本語プロンプトをそのまま維持しています
+      // ⚠️ 元の日本語プロンプトをそのまま維持しています
       final prompt = """
 あなたは「世界一不親切な英語の先生」です。
 ストーリーブックの主人公のような、ユーモアがあって励ましてくれるような口調で回答してください。
@@ -569,10 +573,10 @@ class _MainScreenState extends State<MainScreen> {
               Text(
                 'スコア: $score / 10 (${isPassed ? "合格！" : "まだまだこれから！"})',
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18, 
                   fontWeight: FontWeight.bold, 
-                  color: isPassed ? Colors.green.shade900 : Colors.red.shade900
+                  color: Colors.black, // テキスト色を黒に固定
                 ),
               ),
             ],
@@ -583,8 +587,8 @@ class _MainScreenState extends State<MainScreen> {
         // --- 徹底防止！保存ボタン ---
         if (FirebaseAuth.instance.currentUser == null)
           ElevatedButton.icon(
-            icon: const Icon(Icons.lock_outline),
-            label: const Text('ログインして復習ノートに保存'),
+            icon: const Icon(Icons.lock_outline, color: Colors.black),
+            label: const Text('ログインして復習ノートに保存', style: TextStyle(color: Colors.black)),
             onPressed: () {
               Navigator.push(
                 context,
@@ -607,11 +611,14 @@ class _MainScreenState extends State<MainScreen> {
               bool isDisabled = alreadySaved || _isSaving;
 
               return ElevatedButton.icon(
-                icon: Icon(isDisabled ? Icons.check : Icons.star_border),
-                label: Text(_isSaving ? '保存中...' : (alreadySaved ? '保存済み' : '🌟 復習ノートに保存')),
+                icon: Icon(isDisabled ? Icons.check : Icons.star_border, color: Colors.black),
+                label: Text(
+                  _isSaving ? '保存中...' : (alreadySaved ? '保存済み' : '🌟 復習ノートに保存'),
+                  style: const TextStyle(color: Colors.black),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isDisabled ? Colors.grey.shade300 : null,
-                  foregroundColor: isDisabled ? Colors.black38 : null,
+                  foregroundColor: Colors.black,
                 ),
                 // isDisabled が true なら onPressed を null にして、タップを物理的に封印
                 onPressed: isDisabled ? null : () async {
@@ -644,23 +651,24 @@ class _MainScreenState extends State<MainScreen> {
           ),
 
         const SizedBox(height: 16),
-        const Text('改善点・添削解説:', style: TextStyle(fontWeight: FontWeight.bold)),
-        Text(lastRes!['improve'].toString()),
+        const Text('改善点・添削解説:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+        Text(lastRes!['improve'].toString(), style: const TextStyle(color: Colors.black)),
         const Divider(),
         
         ExpansionTile(
-          title: const Text('正答例・重要単語を表示'),
+          title: const Text('正答例・重要単語を表示', style: TextStyle(color: Colors.black)),
           children: [
             ListTile(
-              title: const Text('正答例'),
-              subtitle: Text(lastRes!['answer'].toString(), style: const TextStyle(fontWeight: FontWeight.bold))
+              title: const Text('正答例', style: TextStyle(color: Colors.black)),
+              subtitle: Text(lastRes!['answer'].toString(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black))
             ),
             ListTile(
-              title: const Text('重要単語'),
+              title: const Text('重要単語', style: TextStyle(color: Colors.black)),
               subtitle: Text(
                 lastRes!['vocab'] is List
                     ? (lastRes!['vocab'] as List).join(', ')
-                    : (lastRes!['vocab']?.toString() ?? 'なし')
+                    : (lastRes!['vocab']?.toString() ?? 'なし'),
+                style: const TextStyle(color: Colors.black),
               ),
             ),
           ],
@@ -677,7 +685,7 @@ class _MainScreenState extends State<MainScreen> {
                   _answerController.clear();
                 });
               },
-              child: const Text('合格！次の問題へ進む ➡️'),
+              child: const Text('合格！次の問題へ進む ➡️', style: TextStyle(color: Colors.black)),
             )
           else
             Column(
@@ -695,7 +703,7 @@ class _MainScreenState extends State<MainScreen> {
                       section = null;
                     });
                   },
-                  child: const Text('🎉 章選択に戻る'),
+                  child: const Text('🎉 章選択に戻る', style: TextStyle(color: Colors.black)),
                 ),
               ],
             ),
