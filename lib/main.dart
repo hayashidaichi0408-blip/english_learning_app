@@ -89,21 +89,30 @@ Widget build(BuildContext context) {
      title: const Text('無限英訳サバイバル'),
      backgroundColor: Colors.blue.shade100,
      actions: [
-       // ⭕【追加点：未ログイン時のみ右上にログインボタンを表示】
-       if (FirebaseAuth.instance.currentUser == null)
-         Padding(
-           padding: const EdgeInsets.only(right: 8.0),
-           child: TextButton.icon(
-             icon: const Icon(Icons.login, color: Colors.black87),
-             label: const Text('ログインする', style: TextStyle(color: Colors.black87)),
-             onPressed: () {
-               Navigator.push(
-                 context,
-                 MaterialPageRoute(builder: (context) => const LoginScreen()),
-               );
-             },
-           ),
-         ),
+       // ⭕ 変更点：StreamBuilderを使って、Firebaseのログイン状態の変化をリアルタイムに監視します
+       StreamBuilder<User?>(
+         stream: FirebaseAuth.instance.authStateChanges(),
+         builder: (context, snapshot) {
+           // 完全にログイン状態のチェックが終わり、かつユーザーが null（未ログイン）の場合のみボタンを表示
+           if (snapshot.connectionState == ConnectionState.active && snapshot.data == null) {
+             return Padding(
+               padding: const EdgeInsets.only(right: 8.0),
+               child: TextButton.icon(
+                 icon: const Icon(Icons.login, color: Colors.black87),
+                 label: const Text('ログインする', style: TextStyle(color: Colors.black87)),
+                 onPressed: () {
+                   Navigator.push(
+                     context,
+                     MaterialPageRoute(builder: (context) => const LoginScreen()),
+                   );
+                 },
+               ),
+             );
+           }
+           // ログイン済み、または読み込み中は何も表示しない（元のコードの状態）
+           return const SizedBox.shrink();
+         },
+       ),
        IconButton(
          icon: const Icon(Icons.home),
          onPressed: _resetAll,
