@@ -9,6 +9,7 @@ permissions:
   pages: write
   id-token: write
 
+# ⭕ ここが重要！古い実行や余計なデータを強制的にキャンセル・クリーンアップする設定です
 concurrency:
   group: "pages"
   cancel-in-progress: true
