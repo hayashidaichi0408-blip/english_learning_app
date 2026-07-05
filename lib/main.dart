@@ -6,7 +6,7 @@ import 'package:firebase_core/firebase_core.dart'; // 追加
 import 'firebase_options.dart'; // 自動生成されたファイルをインポート
 import 'screens/login_screen.dart'; // インポートを忘れずに
 import 'package:firebase_auth/firebase_auth.dart'; // ← これが足りていないためエラーが出ています
-import 'screens/login_screen.dart';              // ← ログイン画面のファイルも読み込みが必要です
+import 'screens/login_screen.dart';               // ← ログイン画面のファイルも読み込みが必要です
 import 'package:english_learning_app/pages/review_note_page.dart';
 import 'package:english_learning_app/services/note_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,16 +31,8 @@ class MugenEiyakuApp extends StatelessWidget {
    return MaterialApp(
      title: '無限英訳',
      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
-     home: StreamBuilder<User?>(
-       stream: FirebaseAuth.instance.authStateChanges(),
-       builder: (context, snapshot) {
-         // ログインしていればメイン画面、していなければログイン画面
-         if (snapshot.hasData) {
-           return const MainScreen();
-         }
-         return const LoginScreen();
-       },
-     ),
+     // ⭕【変更点：直接MainScreenを開く】
+     home: const MainScreen(),
    );
  }
 }
@@ -97,6 +89,21 @@ Widget build(BuildContext context) {
      title: const Text('無限英訳サバイバル'),
      backgroundColor: Colors.blue.shade100,
      actions: [
+       // ⭕【追加点：未ログイン時のみ右上にログインボタンを表示】
+       if (FirebaseAuth.instance.currentUser == null)
+         Padding(
+           padding: const EdgeInsets.only(right: 8.0),
+           child: TextButton.icon(
+             icon: const Icon(Icons.login, color: Colors.black87),
+             label: const Text('ログインする', style: TextStyle(color: Colors.black87)),
+             onPressed: () {
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (context) => const LoginScreen()),
+               );
+             },
+           ),
+         ),
        IconButton(
          icon: const Icon(Icons.home),
          onPressed: _resetAll,
@@ -398,7 +405,7 @@ Widget build(BuildContext context) {
                    英訳の正答例は解説の中に直接書かないでください。
                    keypointでは示されたcurrent_qからのみ考え,生徒の解答は全く考慮せず（生徒が間違えた点を重点的に解説する必要は全くない。current_qでもっとも大事だと思われる文法的知識を二つ解説する）一般的に問題を解くためにもっとも重要だと思われる文法的知識をcurrent_qから読み取り詳しく普遍的に使えるように解説してください。
                    以下の「課題」と「ユーザーの回答」を比較し、厳密に採点してください。
-　　　　　　　　　　　　他の問題と混同せず、必ず提示された問題文のみに基づいて回答してください。
+            他の問題と混同せず、必ず提示された問題文のみに基づいて回答してください。
 
                    問題文:$currentQ
                    生徒の回答: $userInput
@@ -488,54 +495,68 @@ Widget _buildResultArea(int totalQuestions, String currentQ) {
      const SizedBox(height: 16),
 
      // --- 徹底防止！保存ボタン ---
-     FutureBuilder<QuerySnapshot>(
-       future: FirebaseFirestore.instance
-           .collection('users')
-           .doc(FirebaseAuth.instance.currentUser?.uid)
-           .collection('saved_notes')
-           .where('q', isEqualTo: currentQ)
-           .get(),
-       builder: (context, snapshot) {
-         bool alreadySaved = snapshot.hasData && snapshot.data!.docs.isNotEmpty;
+     // ⭕【追加点：未ログイン時はボタンを切り替えてログイン画面へ誘導する】
+     if (FirebaseAuth.instance.currentUser == null)
+       ElevatedButton.icon(
+         icon: const Icon(Icons.lock_outline),
+         label: const Text('ログインして復習ノートに保存'),
+         style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade200),
+         onPressed: () {
+           Navigator.push(
+             context,
+             MaterialPageRoute(builder: (context) => const LoginScreen()),
+           );
+         },
+       )
+     else
+       FutureBuilder<QuerySnapshot>(
+         future: FirebaseFirestore.instance
+             .collection('users')
+             .doc(FirebaseAuth.instance.currentUser?.uid)
+             .collection('saved_notes')
+             .where('q', isEqualTo: currentQ)
+             .get(),
+         builder: (context, snapshot) {
+           bool alreadySaved = snapshot.hasData && snapshot.data!.docs.isNotEmpty;
 
-         // 「既に保存済み」または「今保存処理中」ならボタンを無効化する
-         bool isDisabled = alreadySaved || _isSaving;
+           // 「既に保存済み」または「今保存処理中」ならボタンを無効化する
+           bool isDisabled = alreadySaved || _isSaving;
 
-         return ElevatedButton.icon(
-           icon: Icon(isDisabled ? Icons.check : Icons.star_border),
-           label: Text(_isSaving ? '保存中...' : (alreadySaved ? '保存済み' : '🌟 復習ノートに保存')),
-           style: ElevatedButton.styleFrom(
-             backgroundColor: isDisabled ? Colors.grey.shade300 : Colors.orange.shade100,
-           ),
-           // isDisabled が true なら onPressed を null にして、タップを物理的に封印
-           onPressed: isDisabled ? null : () async {
-             setState(() => _isSaving = true); // 1. 押した瞬間に「保存中」にして連打を即ブロック
+           return ElevatedButton.icon(
+             icon: Icon(isDisabled ? Icons.check : Icons.star_border),
+             label: Text(_isSaving ? '保存中...' : (alreadySaved ? '保存済み' : '🌟 復習ノートに保存')),
+             style: ElevatedButton.styleFrom(
+               backgroundColor: isDisabled ? Colors.grey.shade300 : Colors.orange.shade100,
+             ),
+             // isDisabled が true なら onPressed を null にして、タップを物理的に封印
+             onPressed: isDisabled ? null : () async {
+               setState(() => _isSaving = true); // 1. 押した瞬間に「保存中」にして連打を即ブロック
 
-             try {
-               await NoteService().saveNote(
-                 question: currentQ,
-                 answer: lastRes!['answer'].toString(),
-                 advice: lastRes!['improve'].toString(),
-                 keypoint: lastRes!['keypoint'].toString(),
-                 source: "$grade > $chapter > $section",
-               );
-              
-               if (mounted) {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                   const SnackBar(content: Text('復習ノートに保存しました！')),
+               try {
+                 await NoteService().saveNote(
+                   question: currentQ,
+                   answer: lastRes!['answer'].toString(),
+                   advice: lastRes!['improve'].toString(),
+                   keypoint: lastRes!['keypoint'].toString(),
+                   source: "$grade > $chapter > $section",
                  );
+                
+                 if (mounted) {
+                   ScaffoldMessenger.of(context).showSnackBar(
+                     const SnackBar(content: Text('復習ノートに保存しました！')),
+                   );
+                 }
+               } catch (e) {
+                 print("保存エラー: $e");
+               } finally {
+                 // 2. 保存が終わったら「保存中」を解除。
+                 // すると、上の FutureBuilder が「既に保存済み」と判定してボタンが「保存済み」に切り替わる
+                 setState(() => _isSaving = false);
                }
-             } catch (e) {
-               print("保存エラー: $e");
-             } finally {
-               // 2. 保存が終わったら「保存中」を解除。
-               // すると、上の FutureBuilder が「既に保存済み」と判定してボタンが「保存済み」に切り替わる
-               setState(() => _isSaving = false);
-             }
-           },
-         );
-       },
-     ),
+             },
+           );
+         },
+       ),
 
      const SizedBox(height: 16),
      const Text('改善点・添削解説:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -553,8 +574,8 @@ Widget _buildResultArea(int totalQuestions, String currentQ) {
            title: const Text('重要単語'),
            subtitle: Text(
              lastRes!['vocab'] is List
-               ? (lastRes!['vocab'] as List).join(', ')
-               : (lastRes!['vocab']?.toString() ?? 'なし')
+                 ? (lastRes!['vocab'] as List).join(', ')
+                 : (lastRes!['vocab']?.toString() ?? 'なし')
            ),
          ),
        ],
@@ -596,9 +617,4 @@ Widget _buildResultArea(int totalQuestions, String currentQ) {
    ],
  );
 }
-}
-
-// 💡 ファイルの1番下に貼り付けるコード
-bool isUserLoggedIn() {
-  return FirebaseAuth.instance.currentUser != null;
 }
