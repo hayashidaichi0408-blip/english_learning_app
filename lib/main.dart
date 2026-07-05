@@ -89,27 +89,48 @@ Widget build(BuildContext context) {
      title: const Text('無限英訳サバイバル'),
      backgroundColor: Colors.blue.shade100,
      actions: [
-       // ⭕ 変更点：StreamBuilderを使って、Firebaseのログイン状態の変化をリアルタイムに監視します
+       // ⭕ 変更点：ログイン状態（未ログイン・ログイン済）に応じてボタンを自動で切り替えます
        StreamBuilder<User?>(
          stream: FirebaseAuth.instance.authStateChanges(),
          builder: (context, snapshot) {
-           // 完全にログイン状態のチェックが終わり、かつユーザーが null（未ログイン）の場合のみボタンを表示
-           if (snapshot.connectionState == ConnectionState.active && snapshot.data == null) {
-             return Padding(
-               padding: const EdgeInsets.only(right: 8.0),
-               child: TextButton.icon(
-                 icon: const Icon(Icons.login, color: Colors.black87),
-                 label: const Text('ログインする', style: TextStyle(color: Colors.black87)),
-                 onPressed: () {
-                   Navigator.push(
-                     context,
-                     MaterialPageRoute(builder: (context) => const LoginScreen()),
-                   );
-                 },
-               ),
-             );
+           if (snapshot.connectionState == ConnectionState.active) {
+             final user = snapshot.data;
+             
+             if (user == null) {
+               // 🔓 未ログインの場合：ログインボタンを表示
+               return Padding(
+                 padding: const EdgeInsets.only(right: 8.0),
+                 child: TextButton.icon(
+                   icon: const Icon(Icons.login, color: Colors.black87),
+                   label: const Text('ログインする', style: TextStyle(color: Colors.black87)),
+                   onPressed: () {
+                     Navigator.push(
+                       context,
+                       MaterialPageRoute(builder: (context) => const LoginScreen()),
+                     );
+                   },
+                 ),
+               );
+             } else {
+               // 🔒 ログイン済みの場合：ログアウトボタンを表示
+               return Padding(
+                 padding: const EdgeInsets.only(right: 8.0),
+                 child: TextButton.icon(
+                   icon: const Icon(Icons.logout, color: Colors.red),
+                   label: const Text('ログアウト', style: TextStyle(color: Colors.red)),
+                   onPressed: () async {
+                     await FirebaseAuth.instance.signOut();
+                     if (context.mounted) {
+                       ScaffoldMessenger.of(context).showSnackBar(
+                         const SnackBar(content: Text('ログアウトしました')),
+                       );
+                     }
+                   },
+                 ),
+               );
+             }
            }
-           // ログイン済み、または読み込み中は何も表示しない（元のコードの状態）
+           // 読み込み中は何も表示しない
            return const SizedBox.shrink();
          },
        ),
