@@ -597,3 +597,8 @@ Widget _buildResultArea(int totalQuestions, String currentQ) {
  );
 }
 }
+
+// 💡 ファイルの1番下に貼り付けるコード
+bool isUserLoggedIn() {
+  return FirebaseAuth.instance.currentUser != null;
+}
