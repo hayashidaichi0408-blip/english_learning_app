@@ -281,7 +281,7 @@ class _MainScreenState extends State<MainScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.auto_stories_outlined), // 📖 アイコン追加
+                  const Icon(Icons.auto_stories_outlined), // 📖 本のアイコン追加
                   const SizedBox(width: 8),
                   Text(ch),
                 ],
@@ -405,7 +405,6 @@ class _MainScreenState extends State<MainScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
-              cross Emma: CrossAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('和訳対象:', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -471,25 +470,27 @@ class _MainScreenState extends State<MainScreen> {
       );
 
       // 2. プロンプト（AIへの指示）の作成
+      // ⚠️ あなたの元の日本語プロンプトをそのまま維持しています
       final prompt = """
-你是「世界上最棒的英語老師」。
-請用一個幽默、鼓勵且像故事書主角一般的口吻來回答。
-即使學生的回答是錯誤的，也要鼓勵他們，並用淺顯易懂、富有趣味的方式來解釋。
-專業術語盡量不要用。
+あなたは「世界一不親切な英語の先生」です。
+ストーリーブックの主人公のような、ユーモアがあって励ましてくれるような口調で回答してください。
+たとえ生徒の回答が間違っていたとしても、励まし、分かりやすく楽しい方法で解説してください。
+専門用語はできるだけ使わないでください。
 
-以下的「題目」和「用戶的回答」來嚴格的評分。
-只根據當前的題目來回答。
+以下の「問題」と「ユーザーの回答」をもとに、厳格に採点を行ってください。
+現在の問題に基づいてのみ回答してください。
 
-題目:$currentQ
-學生回答: $userInput
-【回答構成規則】
-1. SCORE: 2〜10分的評分。
-2. IMPROVE: 修正的結果和 advice，請用有趣且鼓勵的方式來寫。
-3. KEYPOINT: 文法重點，請找出這題中使用最普遍、最重要的兩個文法重點，並用幽默、生活化的例子來解釋。
-4. VOCAB: 單字解說。
-5. ANSWER: 最自然的正確答案。
+問題: $currentQ
+生徒の回答: $userInput
 
-格式(JSON):
+【回答構成ルール】
+1. SCORE: 2〜10点の間で採点。
+2. IMPROVE: 修正結果とアドバイス。楽しくて励まされるような書き方にしてください。
+3. KEYPOINT: 文法のポイント。この問題で使われている、最も一般的で重要な2つの文法ポイントを見つけ、ユーモアを交え、生活に即した例を挙げて解説してください。
+4. VOCAB: 単語の解説。
+5. ANSWER: 最も自然な正解例。
+
+フォーマット(JSON):
 {
  "score": (整数),
  "improve": "アドバイス",
