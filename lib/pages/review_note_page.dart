@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:english_learning_app/services/note_service.dart';
+import '../screens/login_screen.dart'; // ⭕【追加点：LoginScreenを呼ぶためにインポート】
 
 class ReviewNotePage extends StatelessWidget {
   final NoteService _noteService = NoteService();
@@ -39,7 +40,13 @@ class ReviewNotePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton.icon(
-                    onPressed: () => Navigator.pushNamed(context, '/login'), // ログイン画面へ移動
+                    // ⭕【変更点：安全に画面遷移できるように直接LoginScreenを指定】
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      );
+                    },
                     icon: const Icon(Icons.login),
                     label: const Text("Googleアカウントでログインする", style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
@@ -95,43 +102,43 @@ class ReviewNotePage extends StatelessWidget {
               final noteId = notes[index].id;
               final data = notes[index].data() as Map<String, dynamic>;
               return Card(
-  margin: EdgeInsets.all(8),
-  child: ExpansionTile(
-    leading: IconButton(
-      // 🌟 pinned が無ければ false にする（エラー対策）
-      icon: Icon((data['pinned'] ?? false) ? Icons.push_pin : Icons.push_pin_outlined),
-      color: (data['pinned'] ?? false) ? Colors.orange : Colors.grey,
-      onPressed: () => _noteService.togglePin(noteId, data['pinned'] ?? false),
-    ),
-    title: Text(data['q'] ?? '問題文なし'),
-    // 🌟 source が無ければ「不明」にする（エラー対策）
-    subtitle: Text("出典: ${data['source'] ?? '不明'}"),
-    children: [
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("【正解例】", style: TextStyle(fontWeight: FontWeight.bold)),
-            // 🌟 原本の "answer" と "ans" どちらでも動くようにする（エラー対策）
-            Text(data['answer'] ?? data['ans'] ?? '解答なし'),
-            Divider(),
-            Text("【解説】"),
-            Text(data['advice'] ?? '解説なし'),
-            Text("\n【ポイント】"),
-            Text(data['keypoint'] ?? 'ポイントなし'),
-            Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _noteService.deleteNote(noteId),
-              ),
-            )
-          ],
-        ),
-      )
-    ],
-  ),
+ margin: EdgeInsets.all(8),
+ child: ExpansionTile(
+   leading: IconButton(
+     // 🌟 pinned が無ければ false にする（エラー対策）
+     icon: Icon((data['pinned'] ?? false) ? Icons.push_pin : Icons.push_pin_outlined),
+     color: (data['pinned'] ?? false) ? Colors.orange : Colors.grey,
+     onPressed: () => _noteService.togglePin(noteId, data['pinned'] ?? false),
+   ),
+   title: Text(data['q'] ?? '問題文なし'),
+   // 🌟 source が無ければ「不明」にする（エラー対策）
+   subtitle: Text("出典: ${data['source'] ?? '不明'}"),
+   children: [
+     Padding(
+       padding: const EdgeInsets.all(16.0),
+       child: Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
+         children: [
+           Text("【正解例】", style: TextStyle(fontWeight: FontWeight.bold)),
+           // 🌟 原本の "answer" と "ans" どちらでも動くようにする（エラー対策）
+           Text(data['answer'] ?? data['ans'] ?? '解答なし'),
+           Divider(),
+           Text("【解説】"),
+           Text(data['advice'] ?? '解説なし'),
+           Text("\n【ポイント】"),
+           Text(data['keypoint'] ?? 'ポイントなし'),
+           Align(
+             alignment: Alignment.centerRight,
+             child: IconButton(
+               icon: Icon(Icons.delete, color: Colors.red),
+               onPressed: () => _noteService.deleteNote(noteId),
+             ),
+           )
+         ],
+       ),
+     )
+   ],
+ ),
 );
             },
           );
