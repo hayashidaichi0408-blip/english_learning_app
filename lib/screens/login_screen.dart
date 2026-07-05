@@ -41,6 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('ログインに失敗しました')),
                   );
+                } else {
+                  // ⭕【追加点：通常ログイン成功時に自動で戻る】
+                  if (mounted) Navigator.pop(context);
                 }
               },
               child: const Text('ログイン'),
@@ -56,6 +59,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Googleログインに失敗しました')),
                   );
+                } else {
+                  // ⭕【追加点：Googleログイン成功時に自動で戻る】
+                  if (mounted) Navigator.pop(context);
                 }
               },
             ),
