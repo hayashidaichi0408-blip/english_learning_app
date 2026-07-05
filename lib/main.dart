@@ -14,7 +14,7 @@ void main() async {
   // Flutterの初期化を確実に行うための魔法の1行
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebaseの初期化（ここで自動生成されたオプションを使います）
+  // Firebaseの初期化（ここで自動生成されたオプション充使います）
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -154,11 +154,14 @@ class _MainScreenState extends State<MainScreen> {
               });
             },
             labelType: NavigationRailLabelType.all,
-            unselectedLabelTextStyle: const TextStyle(color: Colors.black),
-            selectedLabelTextStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            unselectedLabelTextStyle: const TextStyle(color: Colors.black, fontSize: 11),
+            selectedLabelTextStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11),
+            // ⭕ AdSense対策用の固定メニューを追加
             destinations: const [
               NavigationRailDestination(icon: Icon(Icons.edit, color: Colors.black), label: Text('演習')),
               NavigationRailDestination(icon: Icon(Icons.book, color: Colors.black), label: Text('復習ノート')),
+              NavigationRailDestination(icon: Icon(Icons.info_outline, color: Colors.black), label: Text('アプリについて')),
+              NavigationRailDestination(icon: Icon(Icons.gavel, color: Colors.black), label: Text('規約・ポリシー')),
             ],
           ),
           const VerticalDivider(thickness: 1, width: 1),
@@ -166,16 +169,30 @@ class _MainScreenState extends State<MainScreen> {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                // ↓ 選ばれたメニューによって、演習画面か復習ノート画面か出し分ける
-                child: _selectedIndex == 0
-                    ? _buildCurrentScreen()
-                    : ReviewNotePage(), // ← 別ファイルで作った復習ノート画面
+                // ↓ 選ばれたメニューによって、表示するウィジェットを切り替える
+                child: _buildMenuContent(),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  // メニューごとの画面出し分け
+  Widget _buildMenuContent() {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildCurrentScreen();
+      case 1:
+        return ReviewNotePage();
+      case 2:
+        return _buildAboutAppPage(); // ⭕ 独自の解説コラムページ
+      case 3:
+        return _buildPolicyPage(); // ⭕ 必須のポリシー・規約ページ
+      default:
+        return _buildCurrentScreen();
+    }
   }
 
   // 現在のStateに応じて表示するウィジェットを切り替える
@@ -492,7 +509,7 @@ class _MainScreenState extends State<MainScreen> {
 2. IMPROVE: 修正結果とアドバイス。楽しくて励まされるような書き方にしてください。
 3. KEYPOINT: 文法のポイント。この問題で使われている、最も一般的で重要な2つの文法ポイントを見つけ、ユーモアを交え、生活に即した例を挙げて解説してください。
 4. VOCAB: 単語の解説。
-5. ANSWER: 最も自然な正解例。
+5. ANSWER: 最幕自然な正解例。
 
 フォーマット(JSON):
 {
@@ -708,6 +725,77 @@ class _MainScreenState extends State<MainScreen> {
               ],
             ),
       ],
+    );
+  }
+
+  // ⭕ AdSense対策：アプリについての詳細な解説文コラム（1000文字以上のオリジナルコンテンツ）
+  Widget _buildAboutAppPage() {
+    return const SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('無限英訳サバイバルとは？', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
+          SizedBox(height: 16),
+          Text(
+            '当アプリ「無限英訳サバイバル」は、最先端の生成AI（Gemini API）を活用した、全く新しい英語学習支援型Webアプリケーションです。従来の選択式クイズや固定されたフレーズの丸暗記とは異なり、ユーザーが自由に入力した英文をリアルタイムで解析・採点し、英語学習における「能動的なアウトプット能力（発信力）」を飛躍的に高めることを目的として開発されました。\n\n'
+            '英語の習得において、リーディング（読む）やリスニング（聞く）といったインプット学習に比べて、ライティング（書く）やスピーキング（話す）といったアウトプット学習は圧倒的に実践の場が不足しがちです。また、独学で英文を作成しても「自分の書いた英語が本当に自然なのか」「どこをどう直せばより良くなるのか」を瞬時にフィードバックしてくれる環境はこれまで身近にありませんでした。当アプリはその課題を解決します。',
+            style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.6),
+          ),
+          SizedBox(height: 20),
+          Text('本アプリの特徴と学習効果', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+          SizedBox(height: 8),
+          Text(
+            '1. AIによるリアルタイム個別添削指導\n'
+            'ユーザーが入力した英文は即座に評価され、10点満点でのスコアリングとともに詳細なアドバイス（改善点）が提示されます。単なる正誤判定ではなく、「ストーリーブックの主人公のような、ユーモアに溢れ励ましてくれる解説」によって、学習のモチベーションを維持しながら楽しく継続できます。\n\n'
+            '2. 文法と重要語彙の深掘り解説\n'
+            '採点結果と同時に、その課題において最も重要かつ汎用性の高い「2つの主要な英文法ポイント」を日常的な分かりやすい例を挙げて個別解説します。さらに、問題に含まれる重要単語や熟語（VOCAB）の一覧も抽出されるため、1つの問題から得られる知識量が最大化されます。\n\n'
+            '3. 確実な定着を狙う復習ノート機能\n'
+            '苦手な問題や、AIから指摘された有益な解説は、Firebase Cloud Firestoreと連携した「復習ノート」にワンタップで永久保存可能。ユーザーがいつでも自分の弱点をピンポイントで見直し、反復練習を行うことができる効率的な学習サイクルを提供しています。',
+            style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.6),
+          ),
+          SizedBox(height: 20),
+          Text('開発背景と教育的な教育価値', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+          SizedBox(height: 8),
+          Text(
+            '現代の英語教育においては、ただ知識を詰め込むだけでなく、「自分の言葉で相手に伝える力」が重視されています。「無限英訳サバイバル」は、学習者が間違えることを恐れずに何度でもトライ＆エラーを繰り返せる「サバイバル環境」を提供し、自立的な言語学習を後押しします。中学生から高校生、そして大人のやり直し英語まで、幅広い学年・難易度データに対応しており、一人ひとりの習得度に寄り添う持続可能な教育系デジタルコンテンツです。',
+            style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.6),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ⭕ AdSense対策：絶対に外せないプライバシーポリシー＆免責事項ページ
+  Widget _buildPolicyPage() {
+    return const SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('プライバシーポリシー及び利用規約', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
+          SizedBox(height: 16),
+          Text(
+            'プライバシーポリシー\n\n'
+            '1. 個人情報の収集と利用について\n'
+            '当アプリケーション（以下、「当アプリ」）では、ユーザーの学習履歴（復習ノート機能など）の保存および認証管理を行うため、Googleが提供するFirebase（Firebase Authentication、Cloud Firestore）を利用しています。これに伴い、匿名のユーザー識別子や、登録されたメールアドレス、保存された学習用テキストデータがセキュアに収集・蓄積されます。これらの情報は、ユーザーにパーソナライズされた学習環境を提供する目的以外には一切使用いたしません。\n\n'
+            '2. APIの利用とデータの送信について\n'
+            '当アプリでは、入力された英文の採点および解説の生成を行うため、Google CloudのGenerative Language API（Gemini API）にデータを送信しています。送信されるデータはユーザーが入力した解答テキストのみであり、氏名やパスワード等の個人情報が送信されることはありません。\n\n'
+            '3. 広告の配信について（Google AdSense）\n'
+            '当アプリでは、第三者配信の広告サービス「Google AdSense」を利用する場合があります。広告配信事業者は、ユーザーの興味に応じた適切な商品やサービスの広告を表示するため、当サイトや他サイトへのアクセスに関する情報「Cookie」（氏名、住所、メールアドレス、電話番号は含まれません）を使用することがあります。ユーザーはブラウザの設定によりCookieを無効にすることが可能です。',
+            style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.6),
+          ),
+          Divider(height: 32),
+          Text(
+            '利用規約・免責事項\n\n'
+            '1. サービスの提供について\n'
+            '当アプリが提供する採点結果、解説、およびアドバイスは、生成AIの技術を用いて自動生成されたものです。AIモデルの性質上、出力結果の正確性、完全性、妥当性、または特定の学習目的への適合性について、明示的にも黙示的にもいかなる保証も行うものではありません。\n\n'
+            '2. 免責事項\n'
+            'ユーザーが当アプリを利用したこと、または利用できなかったことにより生じた、いかなる直接的・間接的な損害、学習上の不利益、システムトラブル等に対しても、開発者は一切の責任を負いません。外部APIサービス（Firebase、Gemini API等）の仕様変更や停止に伴うサービスの休止についても同様とします。\n\n'
+            '3. 著作権について\n'
+            '当アプリに掲載されている学習データ、独自テキスト、デザイン、その他のコンテンツの著作権は開発者に帰属します。無断での複製、転載、配布を固く禁じます。',
+            style: TextStyle(fontSize: 13, color: Colors.black87, height: 1.6),
+          ),
+        ],
+      ),
     );
   }
 }
