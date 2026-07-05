@@ -9,6 +9,11 @@ permissions:
   pages: write
   id-token: write
 
+# ⭕【追加】同時に複数のデプロイが走って競合するのを防ぐ設定（古い処理を自動キャンセル）
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   deploy:
     environment:
