@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'data.dart'; // DATAマップが入っている想定
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:convert'; // JSONのパースに使用
