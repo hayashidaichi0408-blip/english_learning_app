@@ -9,7 +9,6 @@ permissions:
   pages: write
   id-token: write
 
-# ⭕【追加】同時に複数のデプロイが走って競合するのを防ぐ設定（古い処理を自動キャンセル）
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -35,7 +34,12 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'build/web'
+          # ⭕【追加】名前の重複パニックを防ぐため、今回の実行IDを名前に含めて一意にします
+          name: github-pages-${{ github.run_id }}
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # ⭕【追加】アップロードしたのと全く同じ名前のデータを指定してデプロイさせます
+          name: github-pages-${{ github.run_id }}
