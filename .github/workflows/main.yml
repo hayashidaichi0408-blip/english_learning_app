@@ -9,7 +9,6 @@ permissions:
   pages: write
   id-token: write
 
-# ⭕ ここが重要！古い実行や余計なデータを強制的にキャンセル・クリーンアップする設定です
 concurrency:
   group: "pages"
   cancel-in-progress: true
@@ -21,15 +20,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # Node 20 警告を回避するためにアクションを最新化
+      - uses: actions/checkout@v4.2.2
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
+      # ★ 修正ポイント: --web-renderer フラグを削除しました
       - name: Build Web
-        run: flutter build web --web-renderer html --base-href "/" --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+        run: flutter build web --base-href "/${{ github.event.repository.name }}/" --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
