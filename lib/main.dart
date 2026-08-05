@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 import 'data.dart'; // DATAマップが入っている想定
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:convert'; // JSONのパースに使用
-import 'package:firebase_core/firebase_core.dart'; // 追加
+import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart'; // 自動生成されたファイルをインポート
-import 'screens/login_screen.dart'; // インポートを忘れずに
-import 'package:firebase_auth/firebase_auth.dart'; // ← これが足りていないためエラーが出ています
+import 'screens/login_screen.dart'; // インポート
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:english_learning_app/pages/review_note_page.dart';
 import 'package:english_learning_app/services/note_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() async {
-  // Flutterの初期化を確実に行うための魔法の1行
+  // Flutterの初期化を確実に行う
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebaseの初期化（ここで自動生成されたオプション充使います）
+  // Firebaseの初期化
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -30,7 +30,8 @@ class MugenEiyakuApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '無限英訳サバイバル',
-      // ⭕ 楽しげなオレンジベースのテーマに設定
+      debugShowCheckedModeBanner: false,
+      // 楽しげなオレンジベースのテーマ
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
@@ -48,7 +49,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // --- 状態管理（Streamlitのst.session_stateに相当） ---
+  // --- 状態管理 ---
   int _selectedIndex = 0;
   String? grade;
   String? level;
@@ -57,7 +58,6 @@ class _MainScreenState extends State<MainScreen> {
   int qIdx = 0;
   int maxQIdx = 0;
   Map<String, dynamic>? lastRes;
-  // クリア状況を保存（例: "優しい_第1章" : true）
   Map<String, bool> cleared = {};
 
   final TextEditingController _answerController = TextEditingController();
@@ -88,11 +88,10 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('無限英訳サバイバル', style: TextStyle(color: Colors.black)),
-        // ⭕ AppBarの色を明るいオレンジに
+        title: const Text('無限英訳サバイバル', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
         backgroundColor: Colors.orange.shade200,
         actions: [
-          // ⭕ StreamBuilderを使って、ログイン状態をリアルタイム監視してボタンを切り替える
+          // StreamBuilderを使ってログイン状態をリアルタイム監視してボタン切り替え
           StreamBuilder<User?>(
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: (context, snapshot) {
@@ -105,7 +104,7 @@ class _MainScreenState extends State<MainScreen> {
                     padding: const EdgeInsets.only(right: 8.0),
                     child: TextButton.icon(
                       icon: const Icon(Icons.login, color: Colors.black),
-                      label: const Text('ログインする', style: TextStyle(color: Colors.black)),
+                      label: const Text('ログインする', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -120,7 +119,7 @@ class _MainScreenState extends State<MainScreen> {
                     padding: const EdgeInsets.only(right: 8.0),
                     child: TextButton.icon(
                       icon: const Icon(Icons.logout, color: Colors.red),
-                      label: const Text('ログアウト', style: TextStyle(color: Colors.red)),
+                      label: const Text('ログアウト', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                       onPressed: () async {
                         await FirebaseAuth.instance.signOut();
                         if (context.mounted) {
@@ -133,7 +132,6 @@ class _MainScreenState extends State<MainScreen> {
                   );
                 }
               }
-              // 読み込み中は何も表示しない
               return const SizedBox.shrink();
             },
           ),
@@ -144,7 +142,6 @@ class _MainScreenState extends State<MainScreen> {
           )
         ],
       ),
-      // ↓ ここから Row で囲ってメニューを作る形に変更
       body: Row(
         children: [
           NavigationRail(
@@ -157,7 +154,6 @@ class _MainScreenState extends State<MainScreen> {
             labelType: NavigationRailLabelType.all,
             unselectedLabelTextStyle: const TextStyle(color: Colors.black, fontSize: 11),
             selectedLabelTextStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 11),
-            // ⭕ AdSense対策用の固定メニューを追加
             destinations: const [
               NavigationRailDestination(icon: Icon(Icons.edit, color: Colors.black), label: Text('演習')),
               NavigationRailDestination(icon: Icon(Icons.book, color: Colors.black), label: Text('復習ノート')),
@@ -170,7 +166,6 @@ class _MainScreenState extends State<MainScreen> {
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                // ↓ 選ばれたメニューによって、表示するウィジェットを切り替える
                 child: _buildMenuContent(),
               ),
             ),
@@ -188,9 +183,9 @@ class _MainScreenState extends State<MainScreen> {
       case 1:
         return ReviewNotePage();
       case 2:
-        return _buildAboutAppPage(); // ⭕ 独自の解説コラムページ
+        return _buildAboutAppPage();
       case 3:
-        return _buildPolicyPage(); // ⭕ 必須のポリシー・規約ページ
+        return _buildPolicyPage();
       default:
         return _buildCurrentScreen();
     }
@@ -214,19 +209,18 @@ class _MainScreenState extends State<MainScreen> {
         ...DATA.keys.map((g) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: ElevatedButton(
-                // ⭕ ボタンの見た目をポップに変更
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange.shade50,
-                  foregroundColor: Colors.black, // 文字色は黒に固定
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () => setState(() => grade = g),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.school_outlined, color: Colors.black), // アイコン
+                    const Icon(Icons.school_outlined, color: Colors.black),
                     const SizedBox(width: 8),
-                    Text(g, style: const TextStyle(color: Colors.black)),
+                    Text(g, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -252,19 +246,18 @@ class _MainScreenState extends State<MainScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: ElevatedButton(
-              // ⭕ ボタンの見た目をポップに変更
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade50,
-                foregroundColor: Colors.black, // 文字色は黒に固定
+                foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () => setState(() => level = lv),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.star_border_purple500, color: Colors.black), // アイコン
+                  const Icon(Icons.star_border_purple500, color: Colors.black),
                   const SizedBox(width: 8),
-                  Text(lv, style: const TextStyle(color: Colors.black)),
+                  Text(lv, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -291,19 +284,18 @@ class _MainScreenState extends State<MainScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: ElevatedButton(
-              // ⭕ ボタンの見た目をポップに変更
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue.shade50,
-                foregroundColor: Colors.black, // 文字色は黒に固定
+                foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () => setState(() => chapter = ch),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.auto_stories_outlined, color: Colors.black), // アイコン
+                  const Icon(Icons.auto_stories_outlined, color: Colors.black),
                   const SizedBox(width: 8),
-                  Text(ch, style: const TextStyle(color: Colors.black)),
+                  Text(ch, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -330,10 +322,9 @@ class _MainScreenState extends State<MainScreen> {
           return Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: ElevatedButton(
-              // ⭕ ボタンの見た目をポップに変更
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple.shade50,
-                foregroundColor: Colors.black, // 文字色は黒に固定
+                foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
@@ -348,9 +339,9 @@ class _MainScreenState extends State<MainScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.flag_outlined, color: Colors.black), // アイコン
+                  const Icon(Icons.flag_outlined, color: Colors.black),
                   const SizedBox(width: 8),
-                  Text(sec, style: const TextStyle(color: Colors.black)),
+                  Text(sec, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -375,7 +366,7 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               TextButton.icon(
                 icon: const Icon(Icons.arrow_back, color: Colors.black),
-                label: const Text('節選択へ', style: TextStyle(color: Colors.black)),
+                label: const Text('節選択へ', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 onPressed: () {
                   setState(() {
                     section = null;
@@ -386,7 +377,7 @@ class _MainScreenState extends State<MainScreen> {
               if (qIdx > 0)
                 TextButton.icon(
                   icon: const Icon(Icons.arrow_left, color: Colors.black),
-                  label: const Text('前の問題', style: TextStyle(color: Colors.black)),
+                  label: const Text('前の問題', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                   onPressed: () {
                     setState(() {
                       qIdx--;
@@ -398,7 +389,7 @@ class _MainScreenState extends State<MainScreen> {
               if (qIdx < maxQIdx && qIdx + 1 < questions.length)
                 TextButton.icon(
                   icon: const Icon(Icons.arrow_right, color: Colors.black),
-                  label: const Text('次の問題', style: TextStyle(color: Colors.black)),
+                  label: const Text('次の問題', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                   onPressed: () {
                     setState(() {
                       qIdx++;
@@ -414,6 +405,7 @@ class _MainScreenState extends State<MainScreen> {
             '$section (Q ${qIdx + 1}/${questions.length})',
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
           ),
+          const SizedBox(height: 8),
           LinearProgressIndicator(value: (qIdx + 1) / questions.length),
           const SizedBox(height: 24),
           
@@ -429,7 +421,7 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 const Text('和訳対象:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                 const SizedBox(height: 8),
-                Text(currentQ, style: const TextStyle(fontSize: 18, color: Colors.black)),
+                Text(currentQ, style: const TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -452,12 +444,17 @@ class _MainScreenState extends State<MainScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: Colors.orange.shade300,
             ),
             onPressed: _isLoading ? null : () {
               _gradeAnswer(currentQ, questions.length);
             },
             child: _isLoading
-                ? const CircularProgressIndicator()
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                  )
                 : const Text('採点・解説', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
           ),
           const SizedBox(height: 24),
@@ -469,7 +466,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // 採点処理（Gemini APIを使用）
+  // 採点処理（最新の Gemini 2.5 Flash モデルを使用）
   Future<void> _gradeAnswer(String currentQ, int totalQuestions) async {
     final userInput = _answerController.text.trim();
 
@@ -485,14 +482,13 @@ class _MainScreenState extends State<MainScreen> {
     });
 
     try {
-      // 1. モデルの初期化
+      // 1. モデルの初期化 (最新の gemini-2.5-flash に更新)
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         apiKey: const String.fromEnvironment('GEMINI_API_KEY', defaultValue: 'YOUR_API_KEY'),
       );
 
-      // 2. プロンプト（AIへの指示）の作成
-      // ⚠️ 元の日本語プロンプトをそのまま維持しています
+      // 2. プロンプト（AIへの指示）
       final prompt = """
 あなたは「世界一不親切な英語の先生」です。
 ストーリーブックの主人公のような、ユーモアがあって励ましてくれるような口調で回答してください。
@@ -510,15 +506,15 @@ class _MainScreenState extends State<MainScreen> {
 2. IMPROVE: 修正結果とアドバイス。楽しくて励まされるような書き方にしてください。
 3. KEYPOINT: 文法のポイント。この問題で使われている、最も一般的で重要な2つの文法ポイントを見つけ、ユーモアを交え、生活に即した例を挙げて解説してください。
 4. VOCAB: 単語の解説。
-5. ANSWER: 最幕自然な正解例。
+5. ANSWER: 最も自然な正解例。
 
-フォーマット(JSON):
+フォーマット(JSONのみを返却してください):
 {
- "score": (整数),
- "improve": "アドバイス",
- "keypoint": "文法ポイント",
- "vocab": "単語解説",
- "answer": "正答例"
+  "score": (整数),
+  "improve": "アドバイス",
+  "keypoint": "文法ポイント",
+  "vocab": "単語解説",
+  "answer": "正答例"
 }
 """;
 
@@ -526,15 +522,20 @@ class _MainScreenState extends State<MainScreen> {
       final response = await model.generateContent([Content.text(prompt)]);
       final text = response.text ?? '{}';
 
-      // 4. JSONの解析（不要な記号の除去）
-      final cleanJson = text.replaceAll('```json', '').replaceAll('```', '').trim();
+      // 4. JSON抽出の強化（マークダウン等が含まれる場合も確実に抽出）
+      final RegExp jsonRegExp = RegExp(r'\{[\s\S]*\}');
+      final match = jsonRegExp.firstMatch(text);
+      final cleanJson = match != null ? match.group(0)! : text;
+
       final Map<String, dynamic> result = json.decode(cleanJson);
 
       setState(() {
         _isLoading = false;
         lastRes = result;
-        // 8点以上で合格
-        if ((result['score'] as int) >= 8) {
+        // 8点以上で合格判定
+        final rawScore = result['score'];
+        final scoreVal = (rawScore is int) ? rawScore : int.tryParse(rawScore.toString()) ?? 0;
+        if (scoreVal >= 8) {
           if (qIdx + 1 > maxQIdx) {
             maxQIdx = qIdx + 1;
           }
@@ -544,7 +545,6 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _isLoading = false;
       });
-      // 画面の下にエラー内容を表示する
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('エラー詳細: $e'),
@@ -574,14 +574,12 @@ class _MainScreenState extends State<MainScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            // ⭕ 結果に合わせて背景色をマイルドに変更
             color: isPassed ? Colors.green.shade50 : Colors.red.shade50,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // ⭕ 結果に合わせた感情アイコンイラストを配置
               Icon(
                 isPassed ? Icons.sentiment_very_satisfied : Icons.sentiment_neutral,
                 color: isPassed ? Colors.green : Colors.red,
@@ -594,7 +592,7 @@ class _MainScreenState extends State<MainScreen> {
                 style: const TextStyle(
                   fontSize: 18, 
                   fontWeight: FontWeight.bold, 
-                  color: Colors.black, // テキスト色を黒に固定
+                  color: Colors.black,
                 ),
               ),
             ],
@@ -602,11 +600,11 @@ class _MainScreenState extends State<MainScreen> {
         ),
         const SizedBox(height: 16),
 
-        // --- 徹底防止！保存ボタン ---
+        // --- 保存ボタン ---
         if (FirebaseAuth.instance.currentUser == null)
           ElevatedButton.icon(
             icon: const Icon(Icons.lock_outline, color: Colors.black),
-            label: const Text('ログインして復習ノートに保存', style: TextStyle(color: Colors.black)),
+            label: const Text('ログインして復習ノートに保存', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.push(
                 context,
@@ -624,23 +622,20 @@ class _MainScreenState extends State<MainScreen> {
                 .get(),
             builder: (context, snapshot) {
               bool alreadySaved = snapshot.hasData && snapshot.data!.docs.isNotEmpty;
-
-              // 「既に保存済み」または「今保存処理中」ならボタンを無効化する
               bool isDisabled = alreadySaved || _isSaving;
 
               return ElevatedButton.icon(
                 icon: Icon(isDisabled ? Icons.check : Icons.star_border, color: Colors.black),
                 label: Text(
                   _isSaving ? '保存中...' : (alreadySaved ? '保存済み' : '🌟 復習ノートに保存'),
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isDisabled ? Colors.grey.shade300 : null,
+                  backgroundColor: isDisabled ? Colors.grey.shade300 : Colors.amber.shade200,
                   foregroundColor: Colors.black,
                 ),
-                // isDisabled が true なら onPressed を null にして、タップを物理的に封印
                 onPressed: isDisabled ? null : () async {
-                  setState(() => _isSaving = true); // 1. 押した瞬間に「保存中」にして連打を即ブロック
+                  setState(() => _isSaving = true); // 連打を即ブロック
 
                   try {
                     await NoteService().saveNote(
@@ -659,9 +654,9 @@ class _MainScreenState extends State<MainScreen> {
                   } catch (e) {
                     print("保存エラー: $e");
                   } finally {
-                    // 2. 保存が終わったら「保存中」を解除。
-                    // すると、上の FutureBuilder が「既に保存済み」と判定してボタンが「保存済み」に切り替わる
-                    setState(() => _isSaving = false);
+                    if (mounted) {
+                      setState(() => _isSaving = false);
+                    }
                   }
                 },
               );
@@ -674,14 +669,14 @@ class _MainScreenState extends State<MainScreen> {
         const Divider(),
         
         ExpansionTile(
-          title: const Text('正答例・重要単語を表示', style: TextStyle(color: Colors.black)),
+          title: const Text('正答例・重要単語を表示', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           children: [
             ListTile(
-              title: const Text('正答例', style: TextStyle(color: Colors.black)),
-              subtitle: Text(lastRes!['answer'].toString(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black))
+              title: const Text('正答例', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+              subtitle: Text(lastRes!['answer'].toString(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
             ),
             ListTile(
-              title: const Text('重要単語', style: TextStyle(color: Colors.black)),
+              title: const Text('重要単語', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
               subtitle: Text(
                 lastRes!['vocab'] is List
                     ? (lastRes!['vocab'] as List).join(', ')
@@ -696,6 +691,7 @@ class _MainScreenState extends State<MainScreen> {
         if (isPassed)
           if (qIdx + 1 < totalQuestions)
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green.shade200),
               onPressed: () {
                 setState(() {
                   qIdx++;
@@ -703,7 +699,7 @@ class _MainScreenState extends State<MainScreen> {
                   _answerController.clear();
                 });
               },
-              child: const Text('合格！次の問題へ進む ➡️', style: TextStyle(color: Colors.black)),
+              child: const Text('合格！次の問題へ進む ➡️', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             )
           else
             Column(
@@ -721,7 +717,7 @@ class _MainScreenState extends State<MainScreen> {
                       section = null;
                     });
                   },
-                  child: const Text('🎉 章選択に戻る', style: TextStyle(color: Colors.black)),
+                  child: const Text('🎉 章選択に戻る', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -729,7 +725,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // ⭕ AdSense対策：アプリについての詳細な解説文コラム（1000文字以上のオリジナルコンテンツ）
+  // アプリについての解説ページ
   Widget _buildAboutAppPage() {
     return const SingleChildScrollView(
       child: Column(
@@ -766,7 +762,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // ⭕ AdSense対策：絶対に外せないプライバシーポリシー＆免責事項ページ
+  // プライバシーポリシー＆免責事項ページ
   Widget _buildPolicyPage() {
     return const SingleChildScrollView(
       child: Column(
