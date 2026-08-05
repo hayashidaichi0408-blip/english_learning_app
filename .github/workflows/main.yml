@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: 
+      - main
+      - hayashidaichi0408-blip # ★今のブランチ名を追加！
 
 permissions:
   contents: read
@@ -20,7 +22,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      # Node 20 警告を回避するためにアクションを最新化
       - uses: actions/checkout@v4.2.2
 
       - name: Setup Flutter
@@ -28,7 +29,6 @@ jobs:
         with:
           channel: 'stable'
 
-      # ★ 修正ポイント: --web-renderer フラグを削除しました
       - name: Build Web
         run: flutter build web --base-href "/${{ github.event.repository.name }}/" --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
